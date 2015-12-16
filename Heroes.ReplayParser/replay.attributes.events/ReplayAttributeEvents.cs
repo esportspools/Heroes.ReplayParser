@@ -8,6 +8,8 @@ namespace Heroes.ReplayParser
 
     public class ReplayAttributeEvents
     {
+        public const string FileName = "replay.attributes.events";
+
         public ReplayAttribute[] Attributes { get; set; }
 
         public static void Parse(Replay replay, byte[] buffer)
@@ -70,28 +72,25 @@ namespace Heroes.ReplayParser
 
                     case ReplayAttributeEventType.DifficultyLevelAttribute:
                         {
-                            var diffLevel = encoding.GetString(attribute.Value.Reverse().ToArray()).ToLower();
+                            var diffLevel = encoding.GetString(attribute.Value.Reverse().ToArray());
                             var player = replay.Players[attribute.PlayerId - 1];
 
                             switch (diffLevel)
                             {
-                                case "vyey":
-                                    player.Difficulty = Difficulty.VeryEasy;
+                                case "VyEy":
+                                    player.Difficulty = Difficulty.Beginner;
                                     break;
-                                case "easy":
-                                    player.Difficulty = Difficulty.Easy;
+                                case "Easy":
+                                    player.Difficulty = Difficulty.Recruit;
                                     break;
-                                case "medi":
-                                    player.Difficulty = Difficulty.Medium;
+                                case "Medi":
+                                    player.Difficulty = Difficulty.Adept;
                                     break;
-                                case "hard":
-                                    player.Difficulty = Difficulty.Hard;
+                                case "HdVH":
+                                    player.Difficulty = Difficulty.Veteran;
                                     break;
-                                case "vyhd":
-                                    player.Difficulty = Difficulty.VeryHard;
-                                    break;
-                                case "insa":
-                                    player.Difficulty = Difficulty.Insane;
+                                case "VyHd":
+                                    player.Difficulty = Difficulty.Elite;
                                     break;
                             }
 
@@ -180,7 +179,23 @@ namespace Heroes.ReplayParser
                             replay.Players[attribute.PlayerId - 1].IsAutoSelect = encoding.GetString(attribute.Value.Reverse().ToArray()) == "Rand";
                             break;
                         }
-                        
+
+                    case ReplayAttributeEventType.SkinAndSkinTint:
+                        {
+                            var skinAndSkinTint = encoding.GetString(attribute.Value.Reverse().ToArray()).Trim('\0');
+                            if (!string.IsNullOrWhiteSpace(skinAndSkinTint))
+                                replay.Players[attribute.PlayerId - 1].SkinAndSkinTint = skinAndSkinTint;
+                        }
+                        break;
+
+                    case ReplayAttributeEventType.MountAndMountTint:
+                        {
+                            var mountAndMountTint = encoding.GetString(attribute.Value.Reverse().ToArray()).Trim('\0');
+                            if (!string.IsNullOrWhiteSpace(mountAndMountTint))
+                                replay.Players[attribute.PlayerId - 1].MountAndMountTint = mountAndMountTint;
+                        }
+                        break;
+
                     case ReplayAttributeEventType.CharacterLevel:
                         {
                             var characterLevel = int.Parse(encoding.GetString(attribute.Value.Reverse().ToArray()));
@@ -261,15 +276,14 @@ namespace Heroes.ReplayParser
             GameTypeAttribute = 3009,
 
             Character = 4002,
+            SkinAndSkinTint = 4003,
+            MountAndMountTint = 4004,
             CharacterLevel = 4008,
-
             HeroSelectionMode = 4010,
             HeroDraftMode = 4018
         }
 
         /*  4006 'rang', 'mele'
-            4004 -> mount, potentially mount color
-            4003 -> potentially skin or skin color
             4007 -> 'spec', 'warr', 'assa'
             4100 -> 'Cool', 'APwr', 'ADmg', 'MaxH'
             4102 -> 'Move', 'MaxM' */

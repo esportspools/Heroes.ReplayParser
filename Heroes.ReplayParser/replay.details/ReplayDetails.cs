@@ -7,6 +7,8 @@ namespace Heroes.ReplayParser
 
     public static class ReplayDetails
     {
+        public const string FileName = "replay.details";
+
         /// <summary> Parses the replay.details file, applying it to a Replay object. </summary>
         /// <param name="replay"> The replay object to apply the parsed information to. </param>
         /// <param name="buffer"> The buffer containing the replay.details file. </param>
@@ -16,7 +18,6 @@ namespace Heroes.ReplayParser
                 using (var reader = new BinaryReader(stream))
                 {
                     var replayDetailsStructure = new TrackerEventStructure(reader);
-
                     replay.Players = replayDetailsStructure.dictionary[0].optionalData.array.Select(i => new Player
                     {
                         Name = i.dictionary[0].blobText,
